@@ -1,0 +1,231 @@
+const searchInput = document.querySelector(".search_input input");
+const searchBtn = document.querySelector(".search_btn");
+
+const City_name = document.getElementById("city_name");
+const Temp = document.getElementById("temperature");
+const Humidity = document.getElementById("humidity");
+const Wind = document.getElementById("wind");
+const Feel = document.getElementById("feel");
+const Description = document.getElementById("description");
+const Weather_icon = document.getElementById("icon_img");
+const Current_date = document.getElementById("current_date");
+
+const Forecast_card = document.querySelectorAll(".forecast_card");
+
+const History_list = document.getElementById("history_list");
+
+const Error_message = document.getElementById("error_message");
+const Error_text = document.getElementById("error_text");
+
+function showErrol(message){
+    Error_message.style.display = "flex";
+    Error_text.textContent = message;
+}
+function hideError(){
+    Error_message.style.display = "none";
+    Error_text.textContent = "";
+}
+
+function getCityDate(timezoneOffset) {
+    const now = new Date();
+    // Thời gian UTC hiện tại
+    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+    // Thời gian của thành phố
+    const cityTime = new Date(
+        utcTime + timezoneOffset * 1000
+    );
+    return cityTime.toLocaleDateString("vi-VN", {
+        weekday: "long",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+
+function clear(){
+    City_name.textContent = "--";
+    Temp.textContent = "--";
+    Humidity.textContent = "--";
+    Wind.textContent = "--";
+    Feel.textContent = "--";
+    Description.textContent = "--";
+    Current_date.textContent = "--";
+    Weather_icon.src = "";
+}
+
+async function getForecast(lat, lon){
+    const url =
+        `https://api.open-meteo.com/v1/forecast` +
+        `?latitude=${lat}` +
+        `&longitude=${lon}` +
+        `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+        `&timezone=auto`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error("Không thể lấy dữ báo thời tiết!");
+    }
+    const data = await response.json();
+    return data;
+}
+
+function getWeatherIcon(code) {
+    if (code === 0) {
+        return{ 
+            icon: "☀️",
+            card_description: "Trời quang"
+        };
+    }
+    if (code >= 1 && code <= 3) {
+        return{
+            icon: "⛅",
+            card_description: "Có mây"
+        };
+    }
+    if (code === 45 || code === 48) {
+        return{
+            icon: "🌫️",
+            card_description: "Sương mù"
+        };
+    }
+    if (code >= 51 && code <= 57) {
+        return{
+            icon: "🌦️",
+            card_description: "Mưa phùn"
+        };
+    }
+    if (code >= 61 && code <= 67) {
+        return{
+            icon: "🌧️",
+            card_description: "Mưa"
+        };
+    }
+    if (code >= 71 && code <= 77) {
+        return{
+            icon: "🌨️",
+            card_description: "Tuyết rơi"
+        };
+    }
+    if (code >= 80 && code <= 82) {
+        return{
+            icon: "🌦️",
+            card_description: "Mưa rào"
+        };
+    }
+    if (code === 95 || code === 96 || code === 99) {
+        return{
+            icon: "⛈️",
+            card_description: "Mưa giông"
+        };
+    }
+    return{
+        icon: "🌤️",
+        card_description: ""
+    };
+}
+
+function displayForecast(data){
+    const days = data.daily.time;
+    days.forEach(function(day, index){
+        const card = Forecast_card[index];
+        const Forecast_day = card.querySelector(".forecast_day");
+        const Forecast_date = card.querySelector(".forecast_date");
+        const Forecast_icon = card.querySelector(".forecast_icon");
+        const Forecast_description = card.querySelector(".forecast_description");
+        const Forecast_temp = card.querySelector(".forecast_temp");
+        const date = new Date(day);
+
+        Forecast_day.textContent = date.toLocaleDateString("vi-VN", {weekday: "short"});
+        Forecast_date.textContent = date.toLocaleDateString("vi-VN", {day: "2-digit", month: "2-digit"});
+
+        const weatherCode = data.daily.weather_code[index];
+        const info = getWeatherIcon(weatherCode);
+        Forecast_icon.textContent = info.icon;
+        Forecast_description.textContent = info.card_description;
+        
+        const maxTemp = data.daily.temperature_2m_max[index];
+        Forecast_temp.textContent = Math.round(maxTemp) + "°C";
+    }
+    );
+}
+
+function saveHistory(city){
+    let history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    history = history.filter(function(item) {
+        return item.toLowerCase() !== city.toLowerCase();
+    });
+    history.unshift(city);
+
+    history = history.slice(0, 3);
+
+    localStorage.setItem(
+        "searchHistory",
+        JSON.stringify(history)
+    );
+}
+
+function displayHistory(){
+    let history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    History_list.innerHTML = "";
+    history.forEach(function(city) {
+        const item = document.createElement("button");
+        item.classList.add("city");
+        item.textContent = " 🔍︎ " + city;
+        item.addEventListener("click", function() {
+            searchInput.value = city;
+            searchBtn.click();
+        });
+        History_list.appendChild(item);
+    });
+}
+
+searchBtn.addEventListener("click", async function(){
+        const city = searchInput.value.trim();
+        if(city === ""){
+            clear();
+            showErrol("Hãy nhập tên thành phố!");
+            return;
+        }
+        hideError();
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=vi`;
+        
+        try {
+            const response = await fetch(url);
+            if(!response.ok){
+                if(response.status === 404){
+                    throw new Error("Không tìm thấy thành phố này! Hãy thử lại!");
+                }
+                throw new Error("Có lỗi khi gọi API!");
+            }
+            const data = await response.json();
+
+            const lat = data.coord.lat;
+            const lon = data.coord.lon;
+            const forecastData = await getForecast(lat, lon);
+        
+            City_name.textContent = data.name;
+            Temp.textContent = Math.round(data.main.temp);
+            Humidity.textContent = data.main.humidity + "%";
+            Wind.textContent = data.wind.speed + "m/s";
+            Feel.textContent = Math.round(data.main.feels_like) + "°C";
+            Description.textContent = data.weather[0].description;
+            Current_date.textContent = getCityDate(data.timezone);
+
+            const icon_src = data.weather[0].icon;
+            Weather_icon.src = `https://openweathermap.org/img/wn/${icon_src}@2x.png`;
+            Weather_icon.alt = data.weather[0].description;
+
+            displayForecast(forecastData);
+
+            saveHistory(data.name);
+            displayHistory();
+
+            console.log(getForecast(lat, lon));
+            console.log(data);
+
+        } catch (error) {
+            clear();
+            console.error(error);
+            showErrol(error.message);
+        }
+    }
+)

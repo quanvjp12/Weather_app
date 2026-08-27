@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <title> WEATHER-APP </title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="frame">
+            <header class="app_header">
+                <div class="title">
+                    <span> 🌦️ WEATHER APP </span>
+                </div>
+                <div class="dark_mode">
+                    <span> ⏾ Dark Mode </span>
+                </div>
+            </header>
+            <hr>
+            
+            <section class="search">
+                <h3>Thời tiết hôm nay</h3>
+                <p> Kiểm tra thời tiết tại thành phố của bạn </p>
+                <div class="search_bar">
+                    <div class="search_input">
+                        <span>🔎︎</span>
+                        <input type="text" placeholder="Nhập tên thành phố">
+                    </div>
+                    <button class="search_btn">Tìm kiếm</button>
+                </div>
+                <div class="error_message" id="error_message">
+                    <span id="error_text"></span>
+                </div>
+            </section>
+
+            <div class="title">
+                <h3> Thời tiết hiện tại</h3>
+            </div>
+            <section class="current_weather">
+                <div class="weather_header">
+                    <span id="city_name"> --</span>
+                    <span id="current_date"></span>
+                </div>
+                <div class="weather_main">
+                    <div class="weather_icon" id="weather_icon">
+                        <img id="icon_img" src="" alt="Biểu tượng thời tiết">
+                    </div>
+                    <div class="temperature">
+                        <span id="temperature">--</span>°C
+                    </div>
+                    <div class="description" id="description">
+                        --
+                    </div>
+                    <div class="details">
+                        <div class="detail">
+                            <span class="detail_icon"> 💦</span>
+                            <span class="detail_title"> Độ ẩm </span>
+                            <strong id="humidity">--%</strong>
+                        </div>
+                        <div class="detail">
+                            <span class="detail_icon"> ༄</span>
+                            <span class="detail_title"> Tốc độ gió </span>
+                            <strong id="wind">--m/s</strong>
+                        </div>
+                        <div class="detail">
+                            <span class="detail_icon"> 🌡️</span>
+                            <span class="detail_title"> Cảm giác </span>
+                            <strong id="feel">°C</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="title">
+                <h3> Dự báo 7 ngày</h3>
+            </div>
+            <section class="forecast">
+                <div class="forecast_list" id="forecast_list">
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                    <div class="forecast_card">
+                        <span class="forecast_day">--</span>
+                        <span class="forecast_date">--/--</span>
+                        <span class="forecast_icon">--</span>
+                        <span class="forecast_description">--</span>
+                        <strong class="forecast_temp">--°C</strong>
+                    </div>
+                </div>
+            </section>
+
+            <div class="title">
+                <h3> Tìm kiếm gần đây</h3>
+            </div>
+            <section class="history">
+                <div class="history_list" id="history_list">
+                    
+                </div>
+            </section>
+        </div>
+                
+        <script src="config.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>
