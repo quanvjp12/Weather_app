@@ -17,6 +17,8 @@ const History_list = document.getElementById("history_list");
 const Error_message = document.getElementById("error_message");
 const Error_text = document.getElementById("error_text");
 
+const darkBtn = document.querySelector(".dark_mode");
+
 function showErrol(message){
     Error_message.style.display = "flex";
     Error_text.textContent = message;
@@ -26,15 +28,10 @@ function hideError(){
     Error_text.textContent = "";
 }
 
-function getCityDate(timezoneOffset) {
-    const now = new Date();
-    // Thời gian UTC hiện tại
-    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
-    // Thời gian của thành phố
-    const cityTime = new Date(
-        utcTime + timezoneOffset * 1000
-    );
-    return cityTime.toLocaleDateString("vi-VN", {
+function getCityDate(time) {
+    const date = new Date(time);
+    
+    return date.toLocaleDateString("vi-VN", {
         weekday: "long",
         day: "2-digit",
         month: "2-digit",
@@ -50,7 +47,7 @@ function clear(){
     Feel.textContent = "--";
     Description.textContent = "--";
     Current_date.textContent = "--";
-    Weather_icon.src = "";
+    Weather_icon.textContent = "--";
 }
 
 async function getForecast(lat, lon){
@@ -58,6 +55,7 @@ async function getForecast(lat, lon){
         `https://api.open-meteo.com/v1/forecast` +
         `?latitude=${lat}` +
         `&longitude=${lon}` +
+        `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m` +
         `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
         `&timezone=auto`;
     const response = await fetch(url);
@@ -124,7 +122,7 @@ function getWeatherIcon(code) {
 }
 
 function displayForecast(data){
-    const days = data.daily.time;
+    const days = data.daily.time.slice(0, 7);
     days.forEach(function(day, index){
         const card = Forecast_card[index];
         const Forecast_day = card.querySelector(".forecast_day");
@@ -178,6 +176,15 @@ function displayHistory(){
     });
 }
 
+darkBtn.addEventListener("click", function(){
+    document.body.classList.toggle("dark");
+    if (document.body.classList.contains("dark")) {
+        darkBtn.textContent = "☀︎ Light Mode";
+    } else {
+        darkBtn.textContent = "⏾ Dark Mode";
+    }
+});
+
 searchBtn.addEventListener("click", async function(){
         const city = searchInput.value.trim();
         if(city === ""){
@@ -186,7 +193,12 @@ searchBtn.addEventListener("click", async function(){
             return;
         }
         hideError();
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=vi`;
+        const url = 
+            `https://geocoding-api.open-meteo.com/v1/search` +
+            `?name=${encodeURIComponent(city)}` +
+            `&count=1` +
+            `&language=vi` +
+            `&format=json`;
         
         try {
             const response = await fetch(url);
@@ -198,25 +210,22 @@ searchBtn.addEventListener("click", async function(){
             }
             const data = await response.json();
 
-            const lat = data.coord.lat;
-            const lon = data.coord.lon;
+            const lat = data.results[0].latitude;
+            const lon = data.results[0].longitude;
             const forecastData = await getForecast(lat, lon);
         
-            City_name.textContent = data.name;
-            Temp.textContent = Math.round(data.main.temp);
-            Humidity.textContent = data.main.humidity + "%";
-            Wind.textContent = data.wind.speed + "m/s";
-            Feel.textContent = Math.round(data.main.feels_like) + "°C";
-            Description.textContent = data.weather[0].description;
-            Current_date.textContent = getCityDate(data.timezone);
-
-            const icon_src = data.weather[0].icon;
-            Weather_icon.src = `https://openweathermap.org/img/wn/${icon_src}@2x.png`;
-            Weather_icon.alt = data.weather[0].description;
+            City_name.textContent = data.results[0].name;
+            Temp.textContent = Math.round(forecastData.current.temperature_2m) + "°C";
+            Humidity.textContent = forecastData.current.relative_humidity_2m + "%";
+            Wind.textContent = forecastData.current.wind_speed_10m + "km/h";
+            Feel.textContent = Math.round(forecastData.current.apparent_temperature) + "°C";
+            Description.textContent = getWeatherIcon(forecastData.current.weather_code).card_description;
+            Weather_icon.textContent = getWeatherIcon(forecastData.current.weather_code).icon;
+            Current_date.textContent = getCityDate(forecastData.current.time);
 
             displayForecast(forecastData);
 
-            saveHistory(data.name);
+            saveHistory(data.results[0].name);
             displayHistory();
 
             console.log(getForecast(lat, lon));
