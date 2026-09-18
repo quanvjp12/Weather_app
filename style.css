@@ -1,3 +1,6 @@
+* {
+    box-sizing: border-box;
+}
 body {
   background-color: #eceff1;
   color: #2b2b2b;
@@ -9,7 +12,6 @@ body {
 .frame {
   width: 100%;
   max-width: 700px;
-  min-width: 700px;
   background-color: #f7f7f5;
   border: 2px solid #2b2b2b;
   padding: 20px 26px 60px;
@@ -227,4 +229,76 @@ body.dark .search_btn:hover {
 }
 body.dark .current_weather {
     background-image: linear-gradient(60deg, #6B4984, #483475, #2B2F77, #141852);
+}
+/* Responsive */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .frame {
+        width: 100%;
+        padding: 16px 14px 40px;
+    }
+    .app_header {
+        font-size: 16px;
+    }
+    .title,
+    .dark_mode {
+        gap: 5px;
+    }
+    .search {
+        margin-bottom: 25px;
+        font-size: 16px;
+    }
+    .search h3 {
+        font-size: 20px;
+    }
+    .search p {
+        font-size: 16px;
+    }
+    .search_bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .search_input {
+        width: 100%;
+    }
+    .search_btn {
+        width: 40%;
+    }
+    .error_message {
+        font-size: 14px;
+    }
+    .current_weather {
+        padding: 14px;
+    }
+    .weather_header {
+        font-size: 15px;
+    }
+    .weather_main {
+        padding: 15px 5px;
+    }
+    .weather_icon #icon_img {
+        width: 70px;
+        height: 70px;
+        font-size: 70px;
+    }
+    .forecast_list {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+    .forecast_card {
+        flex: 0 0 130px;
+    }
+    #history_list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    #history_list .city {
+        width: 100%;
+    }
 }
