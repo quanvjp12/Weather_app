@@ -192,7 +192,13 @@ searchBtn.addEventListener("click", async function(){
             showErrol("Hãy nhập tên thành phố!");
             return;
         }
+        if (searchBtn.disabled) return;
         hideError();
+
+        const originalBtnText = searchBtn.textContent;
+        searchBtn.disabled = true;
+        searchBtn.textContent = "Đang tìm...";
+
         const url = 
             `https://geocoding-api.open-meteo.com/v1/search` +
             `?name=${encodeURIComponent(city)}` +
@@ -228,13 +234,13 @@ searchBtn.addEventListener("click", async function(){
             saveHistory(data.results[0].name);
             displayHistory();
 
-            console.log(getForecast(lat, lon));
-            console.log(data);
-
         } catch (error) {
             clear();
             console.error(error);
             showErrol(error.message);
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.textContent = originalBtnText;
         }
     }
 )
